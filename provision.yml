@@ -1,0 +1,24 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: install imgcnv apt key
+    apt_key:
+      url: https://biodev.ece.ucsb.edu/debian/cbi_repository_key.asc
+      state: present
+
+  - name: install imgcnv apt repo
+    apt_repository:
+      repo: deb http://biodev.ece.ucsb.edu/debian unstable main
+      state: present
+
+  - name: install imgcnv
+    apt:
+      name: imgcnv
+      state: present
+      allow_unauthenticated: yes
+      update_cache: yes
+      
+      

@@ -2,23 +2,50 @@
 - hosts: all
   become: yes
   become_method: sudo
-
+  
   tasks:
-  - name: install imgcnv apt key
-    apt_key:
-      url: https://biodev.ece.ucsb.edu/debian/cbi_repository_key.asc
-      state: present
-
-  - name: install imgcnv apt repo
-    apt_repository:
-      repo: deb http://biodev.ece.ucsb.edu/debian unstable main
-      state: present
-
-  - name: install imgcnv
+  - name: Run the equivalent of "apt-get update" as a separate step
     apt:
-      name: imgcnv
-      state: present
-      allow_unauthenticated: yes
       update_cache: yes
+
+  - name: Update all packages to the latest version
+    apt:
+    upgrade: dist
       
+  - name: install packages
+    apt:
+      name: "{{ item }}"
+      state: present
+      allow_unauthenticated: no
+      update_cache: yes
+      #upgrade: dist
+    with_items:
+      - libfontconfig1
+      - libxi6
+      - libxrender1
+      - libxtst6
+      - zip
+
+  - name: download Fiji
+    become: yes
+    become_user: vagrant
+    get_url:
+      url: https://downloads.imagej.net/fiji/latest/fiji-linux64.zip
+      dest: /home/vagrant/fiji-linux64.zip
+      mode: 0400
       
+  - name: unzip Fiji
+    become: yes
+    become_user: vagrant
+    unarchive:
+      src: /home/vagrant/fiji-linux64.zip
+      dest: /home/vagrant
+      remote_src: yes
+
+  - name: download EDF plugin
+    become: yes
+    become_user: vagrant
+    get_url:
+      url: http://bigwww.epfl.ch/demo/edf/Extended_Depth_Field.jar
+      dest: /home/vagrant/Fiji.app/plugins
+

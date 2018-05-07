@@ -3,8 +3,9 @@ Thermo CellInsight plate reader allows imaging of six channels. These can also b
 record different focus levels of the same fluorescent channel. This script uses an
 ImageJ Extended Depth of Field plugin to combine such data.
 
-[http://bigwww.epfl.ch/demo/edf/]
-[https://github.com/fiji-BIG/Extended_Depth_Field] 
+http://bigwww.epfl.ch/demo/edf/
+
+https://github.com/fiji-BIG/Extended_Depth_Field 
 
 ```
 # clone this repository

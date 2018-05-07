@@ -17,21 +17,32 @@ logging.basicConfig(filename='/vagrant/edf.log', format='%(levelname)s:%(message
 compute_output = "NOT_SET"
 
 def edf(etc):
-    print etc.inputdir
-    print etc.field
-    print etc.stacks
-    print etc.outputdir
+    print "etc " + etc.inputdir
+    print "etc " + etc.field
+    print "etc " + str(etc.stacks)
+    print "etc " + etc.outputdir
 
     for s in stacks:
-        print s
-        files = glob.glob(etc.inputdir + "/" + etc.field)
-        print files
+        channelfilterstr = "|".join(s)
+        print channelfilterstr
+        channelfilter = re.compile(channelfilterstr)
+        fieldfiles = glob.glob(etc.inputdir + "/" + etc.field + "*")
+        edfinput = []
+        for f in fieldfiles:
+            #print f
+            if re.search(channelfilter, f):
+                #print "match"
+                edfinput.append(f)
+        print "edfinput " + str(edfinput)
         edffile = etc.outputdir + "/" + etc.field + "_edf_" + '_'.join(s) + ".tif"
-        print edffile
+        if len(edfinput) > 0:
+            print "edffile " + edffile
     
-    #cmd = [IMAGEJ,EDF,"'"+file_in+"'","'"+file_out+"'",'> /dev/null']
-    #logging.info(" ".join(cmd))
-    #os.system(" ".join(cmd))
+            cmd = [IMAGEJ,EDF,"-o '"+edffile+"'","'"+"' '".join(edfinput)+"'"]
+            print " ".join(cmd)
+            logging.info(" ".join(cmd))
+            os.system(" ".join(cmd))
+            print
 
 
 parser = OptionParser()
@@ -40,13 +51,17 @@ options,args = parser.parse_args()
 
 dir_input = args[0]
 dir_output_root = args[1]
+print "dir_input " + dir_input
+print "dir_output_root " + dir_output_root
 stacks = []
 for s in options.stacks.split(":"):
     stacks.append(s.split(","))
-print stacks
+print "stacks" + str(stacks)
 
-input_root,tail = os.path.split(dir_input)
+head,tail = os.path.split(dir_input)
+print "tail " + tail
 dir_output = os.path.join(dir_output_root,tail) + "_edf"
+print "dir_output " + dir_output
 
 # start timer
 start_time = time.time()
@@ -80,18 +95,20 @@ reC01 = re.compile('(LMU-CELLINSIGHT_[0-9]{12}_[A-Z][0-9]{2}f[0-9]{2,3})')
 files = glob.glob(dir_input + "/*.tiff")
 fields = set()
 for f in files:
-    print f
+    print "file" + f
     result = reC01.search(f)
     if result:
         fields.add(result.group(0))
 
 tasks = []
 for f in fields:
-    print f
+    print "field" + f
     task = EdfTaskConfig(dir_input,f,stacks,dir_output)
     tasks.append(task)
 
-r = pool.map(edf, tasks)
+#r = pool.map(edf, tasks)
+for t in tasks:
+    edf(t)
 
 logging.info("Time elapsed: " + str(time.time() - start_time_convert) + "s")
 

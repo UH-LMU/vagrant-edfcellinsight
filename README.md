@@ -7,6 +7,10 @@ http://bigwww.epfl.ch/demo/edf/
 
 https://github.com/fiji-BIG/Extended_Depth_Field 
 
+Prerequisites:
+- https://www.vagrantup.com/
+- https://www.virtualbox.org/
+
 ```
 # clone this repository
 git clone https://github.com/UH-LMU/vagrant-edfcellinsight.git
